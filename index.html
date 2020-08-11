@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Для MEDODS</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="style.css?ver4=5">
+</head>
+<body>
+<div class="line">
+	<header>
+		<h1>Simon Says</h1>
+		<span>Windows Edition</span>
+	</header>
+	<main>
+		<div class="game">
+			<div class="game__button" id="0"></div>
+			<div class="game__button" id="1"></div>
+			<div class="game__button" id="2"></div>
+			<div class="game__button" id="3"></div>
+		</div>
+		<div class="game-menu">
+			<div class="game-menu__score"><h2 id="score">Очки: 0</h2></div>
+			<div class="game-menu__start" id="start">Пуск</div>
+			<h2>Уровень:</h2>
+			<ul class="game-menu__levl">
+				<li title="Скорость 1,5 секунды" delay="1500" class="lvl game-menu__levl_active">Легкий</li>
+				<li title="Скорость 1 секунда" delay="1000" class="lvl">Средний</li>
+				<li title="Скорость 0,4 секунды" delay='400' class="lvl">Сложный</li>
+			</ul>
+		</div>
+	</main>
+	<footer>
+		<ul class="game-control" id="game-control">
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+		<div class="info-control" title="Информация" id="control-info">i</div>
+	</footer>
+	<div class="game-over" style="display: none;" id="game-over-info">
+		<div>
+			<p style="font-size: 4em; font-weight: bold;">:(</p>
+			<p id="go__info"></p>
+			<p id="result"></p>
+		</div>
+	</div>
+	<div class="ic-info" style="display: none;" id="control-info_close">
+		<div class="ic-text">
+			<div class="ic-info__control" id="ic-close">X</div>
+			<h2>Управление</h2>
+			<p>Настройте управление под себя или используйте готовые решения!</p>
+			<ul class="tb-info">
+				<li>
+					<b>Управление на клавиатуре #1</b>
+					<p>Старт - Пробел (Space)</p>
+					<p style="color: #ef4f21">Красный - Z</p>
+					<p style="color: #81ba03">Зеленый - X</p>
+					<p style="color: #04a5ee">Синий - C</p>
+					<p style="color: #fab808">Желтый - V</p>
+					<div class="use-control" date-control='zxcv ' id="control_1">Использовать</div>
+				</li>
+				<li>
+					<b>Управление на клавиатуре #2</b>
+					<p>Старт - Пробел(Space)</p>
+					<p style="color: #ef4f21">Красный - A</p>
+					<p style="color: #81ba03">Зеленый - S</p>
+					<p style="color: #04a5ee">Синий - Z</p>
+					<p style="color: #fab808">Желтый - X</p>
+					<div class="use-control" date-control='aszx ' id="control_2">Использовать</div>
+				</li>
+				<li>
+					<b>Управление на <u>Numpad</u></b>
+					<p>Старт - Num 0</p>
+					<p style="color: #ef4f21">Красный - 4</p>
+					<p style="color: #81ba03">Зеленый - 5</p>
+					<p style="color: #04a5ee">Синий - 1</p>
+					<p style="color: #fab808">Желтый - 2</p>
+					<div class="use-control" date-control="45120" id="control_3">Используется</div>
+				</li>
+			</ul>
+			<hr>
+			<b>Настройка собственного управления</b>
+			<div class="own_control">
+				<p>Пуск(Начать игру)</p>
+				<div id="bc_start" class="button_control bc_space" name="space" style="background-color: #eee; color: #000;" >Пробел(Space)</div>
+				<p>Красный</p>
+				<div id="bc_0" class="button_control" name="red" style="background-color: #ef4f21">q</div>
+				<p>Зеленый</p>
+				<div id="bc_1" class="button_control" name="green" style="background-color: #81ba03">w</div>
+				<p>Синий</p>
+				<div id="bc_2" class="button_control" name="blue" style="background-color: #04a5ee">a</div>
+				<p>Желтый</p>
+				<div id="bc_3" class="button_control" name="orange" style="background-color: #fab808">s</div>
+			</div>
+			<div class="use-control" date-control="qwas " id="control_4">Использовать</div>
+		</div>
+	</div>
+</div>
+
+<audio src="sound/game_over.wav" id="sound_end" type="audio/wav"></audio>
+<audio src="sound/red.wav" id="sound_0" type="audio/wav"></audio>
+<audio src="sound/green.wav" id="sound_1" type="audio/wav"></audio>
+<audio src="sound/blue.wav" id="sound_2" type="audio/wav"></audio>
+<audio src="sound/yellow.wav" id="sound_3" type="audio/wav"></audio>
+
+<script type="text/javascript">
+
+	var k = 0,
+		bc = 0,
+		bc_e = 0,
+		score = -1,
+		delay = 1500,
+		play_sequence = [];
+
+	if(localStorage.getItem('control')){
+		var control = localStorage.getItem('control'),
+			control_e = localStorage.getItem('control_e');
+
+		if(control_e == 'control_4'){
+			for(let i=0; i<control.length-1; i++){
+				document.getElementById('bc_'+i).innerHTML = control[i];
+			}
+			if(control[4] == ' '){
+				document.getElementById('bc_start').innerHTML = 'Пробел(Space)';
+				document.getElementById('bc_start').classList.add('bc_space');
+			}
+			else{
+				document.getElementById('bc_start').innerHTML = control[5];
+			}	
+		}
+	}
+	else{
+		var control = [4, 5, 1, 2, 0],
+			control_e = 'control_3';
+	}
+
+	first_date();
+
+	document.onkeypress = function(w){
+		if(bc == 0){
+			for(let i=0; i<control.length-1; i++){
+				if(w.key == control[i]){
+					let e = document.getElementById('game-control');
+					e.children[i].setAttribute('style', 'color: #000; border: 3px solid #000;');
+					setTimeout(function(){
+						e.children[i].setAttribute('style', '');
+					},delay/1.5);
+					button_press(i);
+				}
+			}
+			if(w.key == control[4]){
+				start_game();
+			}
+		}
+		else{
+			change_control(w);
+		}
+	}
+
+	document.onclick = function(e){
+		if(e.target.classList.contains('game__button')){
+			button_press(e.target.id);
+		}
+		else if(e.target.classList.contains('lvl')){
+			level(e);
+		}
+		else if(e.target.classList.contains('use-control')){
+			control = e.target.getAttribute('date-control');
+			localStorage.setItem('control', control);
+			new_control(e);
+		}
+		else if(e.target.classList.contains('button_control')){
+			setting_control(e);
+		}
+		else if(e.target.id == 'start'){
+			start_game();
+		}
+		else if(e.target.id == 'game-over-info'){
+			document.getElementsByClassName('game-over')[0].setAttribute('style', 'display: none');
+		}
+		else if(e.target.id == 'control-info'){
+			document.getElementsByClassName('ic-info')[0].setAttribute('style', 'display: grid');
+		}
+		else if(e.target.id == 'control-info_close'){
+			document.getElementsByClassName('ic-info')[0].setAttribute('style', 'display: none');
+			bc = 0;
+		}
+		else if(e.target.id == 'ic-close'){
+			document.getElementsByClassName('ic-info')[0].setAttribute('style', 'display: none');
+			bc = 0;
+		}
+	}
+
+	function first_date(){
+		document.getElementById(control_e).classList.add('action_control');
+		document.getElementById(control_e).innerHTML = 'Используется';
+
+		for(let i=0; i<control.length-1; i++){
+			document.getElementById('game-control').children[i].innerHTML = control[i];
+		}
+	}
+
+	function start_game(){
+		if(score == -1){
+			document.getElementById('start').innerHTML = 'Закончить';
+			score = 0;
+			game();
+		}
+		else{
+			e = 'Вы закончилил игру!';
+			game_final(e);
+		}
+	}
+
+	function button_press(i){
+		if(score >= 0){	
+			if(i == play_sequence[k]){
+				document.getElementById('sound_'+play_sequence[k]).play();
+				k++;
+				if(k == play_sequence.length){
+					score++;
+					k = 0;
+					document.getElementById('score').innerHTML = 'Очки: '+score;
+					setTimeout(function(){
+						game();
+					},delay);
+				}
+			}
+			else{
+				let e = 'Ой, вы проиграли!';
+				game_final(e);
+			}
+		}
+		else{
+			document.getElementById('sound_'+i).play();
+		}
+	}
+
+	function game(){
+		let b = document.getElementsByClassName('game__button');
+		play_sequence.push(Math.floor(Math.random()*4));
+		for(let i=0; i<play_sequence.length; i++){
+			(function(){
+				setTimeout(function(){
+					b[play_sequence[i]].classList.add('game__button_active');
+					document.getElementById('sound_'+play_sequence[i]).play();
+					setTimeout(function(){
+						b[play_sequence[i]].classList.remove('game__button_active');
+					},delay/1.5);	
+				},delay*i);
+			})(i);
+		}
+	}
+
+	function game_final(e){
+		document.getElementById('sound_end').play();
+		document.getElementById('go__info').innerHTML = e;
+		document.getElementById('result').innerHTML = 'Ваш результат: '+score;
+		document.getElementById('start').innerHTML = 'Пуск';
+		score = -1;
+		k = 0;
+		play_sequence = [];
+		document.getElementById('score').innerHTML = 'Очки: 0';
+		document.getElementsByClassName('game-over')[0].setAttribute('style', 'display: flex');
+		setTimeout(function(){
+			document.getElementsByClassName('game-over')[0].setAttribute('style', 'display: none');
+		},5000);
+	}
+
+	function level(e){
+		delay = parseInt(e.target.getAttribute('delay'));
+		let i = document.getElementsByClassName('game-menu__levl_active')[0];
+		if(i){
+			i.classList.remove('game-menu__levl_active');
+		}
+		e.target.classList.add('game-menu__levl_active');
+	}
+
+	function new_control(e){
+		let j = document.getElementsByClassName('action_control')[0];
+		if(j){
+			j.innerHTML = 'Использовать';
+			j.classList.remove('action_control');
+		}
+		e.target.classList.add('action_control');
+		e.target.innerHTML = 'Используется';
+
+		localStorage.setItem('control_e', e.target.id);
+
+		for(let i=0; i<control.length-1; i++){
+			document.getElementById('game-control').children[i].innerHTML = control[i];
+		}	
+	}
+
+	function setting_control(e){
+		bc = 1;
+		bc_e = e.target;
+		bc_e.innerHTML = '...';
+		bc_e.classList.remove('bc_space');
+	}
+
+	function change_control(w){
+		let n = '';
+		if(w.key == ' '){
+			bc_e.innerHTML = 'Пробел(Space)';
+			bc_e.classList.add('bc_space');
+		}
+		else{
+			bc_e.innerHTML = w.key;
+		}
+		document.getElementById('control_4').classList.remove('action_control');	
+		document.getElementById('control_4').innerHTML = 'Сохранить..';
+		for(let i=0; i<4; i++){
+			n += document.getElementById('bc_'+i).innerHTML;
+		}
+		if(document.getElementById('bc_start').innerHTML == 'Пробел(Space)'){
+			n += ' ';
+		}
+		else{
+			n += document.getElementById('bc_start').innerHTML;
+		}
+		document.getElementById('control_4').setAttribute('date-control', n);
+	}
+</script>
+</body>
+</html>
+
